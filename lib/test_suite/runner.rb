@@ -4,27 +4,27 @@ require "test_suite/report"
 module TestSuite
   class Runner
 
-    def self.call(configuration)
-      runner = new(configuration)
+    def self.call(commands)
+      runner = new(commands)
       runner.call
       runner
     end
 
-    attr_reader :configuration
+    attr_reader :commands
 
-    def initialize(configuration)
-      @configuration = configuration
+    def initialize(commands)
+      @commands = commands
     end
 
     def call
-      configuration.commands.each(&:run!)
+      commands.each(&:run!)
     rescue CommandFailed => error
     ensure
-      Report.call(configuration)
+      Report.call(commands)
     end
 
     def exit_status
-      configuration.commands.all?(&:ok?) ? 0 : 1
+      commands.all?(&:ok?) ? 0 : 1
     end
 
   end

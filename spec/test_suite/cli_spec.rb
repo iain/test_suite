@@ -11,7 +11,7 @@ describe TestSuite::CLI do
   end
 
   it "runs the tests" do
-    TestSuite::Runner.should_receive(:call).with(TestSuite.configuration)
+    TestSuite::Runner.should_receive(:call).with(TestSuite.configuration.commands)
     subject.go
   end
 

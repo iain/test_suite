@@ -2,20 +2,16 @@
 module TestSuite
   class Report
 
-    def self.call(configuration)
-      report = new(configuration)
+    def self.call(commands)
+      report = new(commands)
       report.call
       report
     end
 
-    attr_reader :configuration
+    attr_reader :commands
 
-    def initialize(configuration)
-      @configuration = configuration
-    end
-
-    def commands
-      configuration.commands
+    def initialize(commands)
+      @commands = commands
     end
 
     def call

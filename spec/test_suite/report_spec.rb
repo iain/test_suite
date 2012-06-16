@@ -15,10 +15,9 @@ describe TestSuite::Report do
   end
 
   it "prints out a report" do
-    ls = stub :ls, :name => :ls, :runtime => 0.4, :status => "success"
-    foobar = stub :foobar, :name => :foobar, :runtime => 1.4, :status => "failed"
-    configuration = stub :commands => [ ls, foobar ]
-    TestSuite::Report.call(configuration)
+    ls     = stub :ls,      :name => :ls,      :runtime => 0.4,  :status => "success"
+    foobar = stub :foobar,  :name => :foobar,  :runtime => 1.4,  :status => "failed"
+    TestSuite::Report.call([ls, foobar])
     stderr.rewind
     stderr.read.should eq <<-DOC
 ┌─────────┬─────────┬─────────┐

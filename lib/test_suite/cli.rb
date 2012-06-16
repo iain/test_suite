@@ -8,7 +8,7 @@ module TestSuite
 
     desc "go", "Runs your test suite"
     def go
-      runner = Runner.call(TestSuite.configuration)
+      runner = Runner.call(TestSuite.configuration.commands)
       exit runner.exit_status
     end
 
