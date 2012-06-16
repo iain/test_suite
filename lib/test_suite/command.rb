@@ -24,6 +24,7 @@ module TestSuite
     end
 
     def fails_build_immediately!
+      raise AmbiguousImportance if ignored?
       @important = true
     end
 
@@ -32,6 +33,7 @@ module TestSuite
     end
 
     def never_fails_build!
+      raise AmbiguousImportance if important?
       @ignored = true
     end
 
@@ -88,6 +90,9 @@ module TestSuite
       @exit_status.nil?
     end
 
+  end
+
+  class AmbiguousImportance < RuntimeError
   end
 
 end

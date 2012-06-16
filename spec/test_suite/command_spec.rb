@@ -32,6 +32,11 @@ describe TestSuite::Command do
       command.should be_important
     end
 
+    it "raises an exception if already ignored" do
+      command.never_fails_build!
+      expect { command.fails_build_immediately! }.to raise_error TestSuite::AmbiguousImportance
+    end
+
   end
 
   describe "#never_fails_build!" do
@@ -45,47 +50,44 @@ describe TestSuite::Command do
       command.should be_ignored
     end
 
+    it "raises an exception if already important" do
+      command.fails_build_immediately!
+      expect { command.never_fails_build! }.to raise_error TestSuite::AmbiguousImportance
+    end
+
   end
 
   describe "#run!" do
 
     it "runs an command" do
-      command.runs "echo this is a test"
-      stdout, stderr = *capture { command.run! }
+      stdout, stderr = *run("echo this is a test")
       stdout.should eq "this is a test\r\n"
     end
 
     it "can do something successfully" do
-      command.runs "ls"
-      capture { command.run! }
+      run successful_command
       command.should be_ok
     end
 
     it "can fail at doing something" do
-      command.runs "ls missing/directory"
-      capture { command.run! }
+      run failing_command
       command.should_not be_ok
     end
 
     it "can fail because the command cannot be found" do
-      command.runs "blahblahblah" # assuming you don't have this command
-      stdout, stderr = *capture { command.run! }
+      stdout, stderr = *run("blahblahblah")
       command.should_not be_ok
       stderr.should eq "No such file or directory - blahblahblah\n"
     end
 
     it "raises CommandFailed if the the build should fail immediately" do
       command.fails_build_immediately!
-      command.runs "ls missing/directory"
-      expect {
-        capture { command.run! }
-      }.to raise_error TestSuite::CommandFailed
+      expect { run failing_command }.to raise_error TestSuite::CommandFailed
     end
 
     it "is still ok if command can be ignored" do
       command.never_fails_build!
-      command.runs "ls missing/directory"
-      capture { command.run! }
+      run failing_command
       command.should be_ok
     end
 
@@ -94,9 +96,8 @@ describe TestSuite::Command do
   describe "#runtime" do
 
     it "measures runtime" do
-      command.runs "sleep 0.1"
-      capture { command.run! }
-      command.runtime.should be_within(0.01).of(0.1)
+      run "sleep 0.2"
+      command.runtime.should be_within(0.1).of(0.2)
     end
 
   end
@@ -104,28 +105,24 @@ describe TestSuite::Command do
   describe "#status" do
 
     it "is 'success' when it worked" do
-      command.runs "ls"
-      capture { command.run! }
+      run successful_command
       command.status.should eq "success"
     end
 
     it "is 'failed' when it failed" do
-      command.runs "ls missing/directory"
-      capture { command.run! }
+      run failing_command
       command.status.should eq "failed"
     end
 
     it "is 'broke the build' when it broke the build immediately" do
       command.fails_build_immediately!
-      command.runs "ls missing/directory"
-      expect { capture { command.run! } }.to raise_error(TestSuite::CommandFailed)
+      run failing_command rescue :whatever
       command.status.should eq "broke the build"
     end
 
     it "is 'failed, but ignored' when it was ignored" do
       command.never_fails_build!
-      command.runs "ls missing/directory"
-      capture { command.run! }
+      run failing_command
       command.status.should eq "failed, but ignored"
     end
 
@@ -133,6 +130,14 @@ describe TestSuite::Command do
       command.status.should eq "didn't run"
     end
 
+  end
+
+  let(:successful_command) { "test 1" }
+  let(:failing_command) { "test" }
+
+  def run(what)
+    command.runs what
+    capture { command.run! }
   end
 
 end
