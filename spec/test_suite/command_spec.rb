@@ -72,4 +72,10 @@ describe TestSuite::Command do
     }.to raise_error TestSuite::CommandFailed
   end
 
+  it "measures runtime" do
+    command.runs "sleep 0.1"
+    capture { command.run! }
+    command.runtime.should be_within(0.01).of(0.1)
+  end
+
 end

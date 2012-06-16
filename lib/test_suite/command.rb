@@ -36,11 +36,13 @@ module TestSuite
     end
 
     def run!
-      PTY.spawn run do |read, write, pid|
-        read.each_char do |char|
-          print char
+      measure do
+        PTY.spawn run do |read, write, pid|
+          read.each_char do |char|
+            print char
+          end
+          @exit_status = PTY.check(pid).to_i
         end
-        @exit_status = PTY.check(pid).to_i
       end
     rescue Errno::ENOENT => error
       $stderr.puts error
@@ -49,8 +51,22 @@ module TestSuite
       raise CommandFailed, self if important?
     end
 
+    def measure
+      start = Time.now
+      yield
+    ensure
+      @runtime = Time.now - start
+    end
+
     def ok?
       @exit_status == 0
+    end
+
+    def runtime
+      @runtime
+    end
+
+    def status
     end
 
   end
