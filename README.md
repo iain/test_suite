@@ -1,5 +1,7 @@
 # TestSuite
 
+[![Build Status](https://secure.travis-ci.org/iain/test_suite.png?branch=master)](http://travis-ci.org/iain/test_suite)
+
 A modern test suite contains many testing frameworks. It contains a suite of
 unit tests, integration tests, end-to-end acceptance tests. If your application
 is polyglot, you might have a tests for each language. Each suite can be
