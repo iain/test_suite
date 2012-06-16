@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: UTF-8
 require 'test_suite/report'
 require 'support/io_helper'
 
