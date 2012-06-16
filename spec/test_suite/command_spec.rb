@@ -41,10 +41,35 @@ describe TestSuite::Command do
 
   it "runs an command" do
     command.runs "echo this is a test"
-    stdout, stderr = *capture do
-      command.run!
-    end
-    stdout.should == "this is a test\r\n"
+    stdout, stderr = *capture { command.run! }
+    stdout.should eq "this is a test\r\n"
+  end
+
+  it "can do something successfully" do
+    command.runs "ls"
+    capture { command.run! }
+    command.should be_ok
+  end
+
+  it "can fail at doing something" do
+    command.runs "ls missing/directory"
+    capture { command.run! }
+    command.should_not be_ok
+  end
+
+  it "can fail because the command cannot be found" do
+    command.runs "blahblahblah" # assuming you don't have this command
+    stdout, stderr = *capture { command.run! }
+    command.should_not be_ok
+    stderr.should eq "No such file or directory - blahblahblah\n"
+  end
+
+  it "raises CommandFailed if the the build should fail immediately" do
+    command.fails_build_immediately!
+    command.runs "ls missing/directory"
+    expect {
+      capture { command.run! }
+    }.to raise_error TestSuite::CommandFailed
   end
 
 end

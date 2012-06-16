@@ -1,4 +1,5 @@
 require 'pty'
+require 'test_suite/command_failed'
 
 module TestSuite
 
@@ -39,7 +40,17 @@ module TestSuite
         read.each_char do |char|
           print char
         end
+        @exit_status = PTY.check(pid).to_i
       end
+    rescue Errno::ENOENT => error
+      $stderr.puts error
+      @exit_status = 1
+    ensure
+      raise CommandFailed, self if important?
+    end
+
+    def ok?
+      @exit_status == 0
     end
 
   end
