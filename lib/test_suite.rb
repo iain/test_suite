@@ -11,8 +11,4 @@ module TestSuite
     @configuration ||= Configuration.new
   end
 
-  def self.commands
-    configuration.commands
-  end
-
 end

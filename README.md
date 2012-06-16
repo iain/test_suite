@@ -82,7 +82,7 @@ TestSuite.configure do |config|
 
   config.command :brakeman do |cmd|
     cmd.run "brakeman"
-    cmd.ignore!
+    cmd.never_fails_build!
   end
 
 end
