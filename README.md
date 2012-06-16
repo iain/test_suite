@@ -13,32 +13,34 @@ This gem will help you manage all your test suites and auxillary commands.
 Here's an example of the test suite report you might get:
 
 ```
-┌───────────────────────┬──────────┬────────┐
-│ Command               │ Runtime  │ Status │
-├───────────────────────┼──────────┼────────┤
-│ Bundler               │  0.805 s │      0 │
-│ Create TEST database  │  3.923 s │      0 │
-│ Migrate TEST database │  9.347 s │      0 │
-│ RSpec                 │ 50.003 s │      1 │
-│ Brakeman              │  5.492 s │    768 │
-│ Cane                  │  1.395 s │    256 │
-└───────────────────────┴──────────┴────────┘
-  The build failed because RSpec failed.
+┌────────────┬─────────┬─────────┐
+│ Command    │ Runtime │ Status  │
+├────────────┼─────────┼─────────┤
+│ rspec      │ 13.923s │ success │
+│ cucumber   │ 59.347s │ failed  │
+│ javascript │ 31.003s │ success │
+└────────────┴─────────┴─────────┘
 ```
 
-## (Planned) Features
+This gem is extracted from a common pattern I found in my projects. You're
+looking at an alpha release. The usage may change significantly in future
+versions.
 
-For the first version:
+## Features
+
+Currently, test_suite supports the following features:
 
 * Define a set of commands
 * Define if and when a command should fail the build
-* Enforce cleanup commands to be run
 * Give a nice overview of all your commands
 
-For later versions:
+Planned features:
 
+* Enforce cleanup commands to be run
+* Provide a rake task
 * Multiple outputs and formatters
-* Stream output to a web server, so you can observe your test suite from everywhere
+* Stream output to a web server, via websockets, so you can observe your test
+  suite from everywhere
 * Run commands in parrallel
 
 ## Installation
@@ -49,26 +51,17 @@ Just install the gem:
 gem install test_suite
 ```
 
-Generate the test suite configuration:
-
-```
-test_suite generate
-```
+Or add it to your Gemfile.
 
 ## Usage
 
-The file generated contains configuration on which commands can be ran. Here is an example.
+Create a configuration file, called something like `script/test_suite.rb`:
 
 ``` ruby
 TestSuite.configure do |config|
 
-  config.command :bundler do |cmd|
-    cmd.runs "bundle check || bundle install" # what should be run
-    cmd.fails_build_immediately!
-  end
-
   config.command :migrate do |cmd|
-    cmd.runs "bundle exec rake RAILS_ENV=test db:migrate:reset > /log/migrate.log"
+    cmd.runs "bundle exec rake RAILS_ENV=test db:migrate:reset"
     cmd.fails_build_immediately!
   end
 
@@ -77,16 +70,19 @@ TestSuite.configure do |config|
   end
 
   config.command :cucumber do |cmd|
-    cmd.runs "bundle exec cucumber"
+    cmd.runs "bundle exec cucumber --format html --out cucumber.html"
   end
 
+  # Also use it to generate metrics
   config.command :brakeman do |cmd|
-    cmd.runs "brakeman"
     cmd.never_fails_build!
   end
 
 end
 ```
+
+The `cmd.runs` is optional and only needed if the command is different from the
+name.
 
 By default, when a command fails, the next command will run. After all commands
 have run, the build will fail.  This means that you can run multiple test
@@ -95,19 +91,48 @@ suites, and get a nice overview of which suite failed.
 If a command is setting up stuff, you'll want to stop the build immediately if
 it fails. For example, if the database couldn't be migrated, it has no use
 running the test suites. You can mark these commands with
-`cmd.fails_build_immediately!`
+`cmd.fails_build_immediately!`.
 
-You can run the entire test suite:
+If some process isn't important enough to break the build, you can mark them
+with `cmd.never_fails_build!`.
 
-```
-test_suite go
-```
-
-For more options run:
+You can run the test suite, by passing the filename to the test_run command.
 
 ```
-test_suite --help
+test_run script/test_suite.rb
 ```
+
+You can create multiple test suites, one for running on your CI server, one for
+running locally. Simply create multiple files.
+
+You can also split up your test suite, for more detailed results:
+
+``` ruby
+TestSuite.configure do |config|
+
+  config.command "Unit Tests" do |cmd|
+    cmd.runs "rspec spec/unit"
+  end
+
+  config.command "Integration Tests" do |cmd|
+    cmd.runs "rspec spec/integration"
+  end
+
+end
+```
+
+I usually make a bash script to install the required gems. This has the benefit
+that it can be run on your CI server more reliably.
+
+``` bash
+#!/bin/bash
+set -e # let this script fail directly when errors occur
+gem which bundler > /dev/null || gem install bundler --no-ri --no-rdoc
+bundle check --no-color || bundle install --no-color
+bundle exec test_suite script/test_suite.rb
+```
+
+Let me know if and how *you* use it!
 
 ## Contributing
 

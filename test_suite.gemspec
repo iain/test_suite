@@ -15,8 +15,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = TestSuite::VERSION
 
-  gem.add_runtime_dependency "thor", "~> 0.15"
-
   gem.add_development_dependency "rspec"
 
 end
