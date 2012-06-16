@@ -1,5 +1,6 @@
 require 'pty'
 require 'test_suite/command_failed'
+require 'test_suite/executor'
 
 module TestSuite
 
@@ -37,20 +38,11 @@ module TestSuite
       @ignored = true
     end
 
-    def run!
+    def run!(executor = Executor.new)
       measure do
-        PTY.spawn run do |read, write, pid|
-          read.each_char do |char|
-            print char
-          end
-          @exit_status = PTY.check(pid).to_i
-        end
+        @exit_status = executor.run(run)
       end
-    rescue Errno::ENOENT => error
-      $stderr.puts error
-      @exit_status = 1
-    ensure
-      raise CommandFailed, self if important?
+      raise CommandFailed, self if broken?
     end
 
     def measure
@@ -75,7 +67,7 @@ module TestSuite
         "success"
       elsif ignored?
         "failed, but ignored"
-      elsif important?
+      elsif broken?
         "broke the build"
       else
         "failed"
@@ -88,6 +80,10 @@ module TestSuite
 
     def never_ran?
       @exit_status.nil?
+    end
+
+    def broken?
+      !success? && important?
     end
 
   end

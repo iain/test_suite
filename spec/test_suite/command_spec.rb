@@ -57,11 +57,12 @@ describe TestSuite::Command do
 
   end
 
+
   describe "#run!" do
 
     it "runs an command" do
-      stdout, stderr = *run("echo this is a test")
-      stdout.should eq "this is a test\r\n"
+      executor.should_receive(:run).with("echo this is a test")
+      run("echo this is a test")
     end
 
     it "can do something successfully" do
@@ -74,15 +75,15 @@ describe TestSuite::Command do
       command.should_not be_ok
     end
 
-    it "can fail because the command cannot be found" do
-      stdout, stderr = *run("blahblahblah")
-      command.should_not be_ok
-      stderr.should eq "No such file or directory - blahblahblah\n"
-    end
-
     it "raises CommandFailed if the the build should fail immediately" do
       command.fails_build_immediately!
       expect { run failing_command }.to raise_error TestSuite::CommandFailed
+    end
+
+    it "doesn't raise CommandFailed if the build was successful" do
+      command.fails_build_immediately!
+      run successful_command
+      command.should be_ok
     end
 
     it "is still ok if command can be ignored" do
@@ -96,8 +97,9 @@ describe TestSuite::Command do
   describe "#runtime" do
 
     it "measures runtime" do
-      run "sleep 0.2"
-      command.runtime.should be_within(0.1).of(0.2)
+      executor.stub(:run) { sleep 0.1 }
+      run
+      command.runtime.should be_within(0.1).of(0.1)
     end
 
   end
@@ -134,10 +136,23 @@ describe TestSuite::Command do
 
   let(:successful_command) { "test 1" }
   let(:failing_command) { "test" }
+  let(:executor) { stub :executor, :run => 0 }
 
-  def run(what)
+  def failing_command
+    cmd = "failing command"
+    executor.stub(:run).with(cmd).and_return(1)
+    cmd
+  end
+
+  def successful_command
+    cmd = "successful command"
+    executor.stub(:run).with(cmd).and_return(0)
+    cmd
+  end
+
+  def run(what = "unspecified command")
     command.runs what
-    capture { command.run! }
+    command.run! executor
   end
 
 end
