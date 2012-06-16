@@ -59,7 +59,7 @@ module TestSuite
     end
 
     def ok?
-      @exit_status == 0
+      ignored? || success?
     end
 
     def runtime
@@ -67,6 +67,25 @@ module TestSuite
     end
 
     def status
+      if never_ran?
+        "didn't run"
+      elsif success?
+        "success"
+      elsif ignored?
+        "failed, but ignored"
+      elsif important?
+        "broke the build"
+      else
+        "failed"
+      end
+    end
+
+    def success?
+      @exit_status == 0
+    end
+
+    def never_ran?
+      @exit_status.nil?
     end
 
   end
