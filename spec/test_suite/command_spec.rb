@@ -1,6 +1,8 @@
 require 'test_suite/command'
+require 'support/io_helper'
 
 describe TestSuite::Command do
+  include IOHelper
 
   let(:name) { :name }
   let(:command) { TestSuite::Command.new(name) }
@@ -35,6 +37,14 @@ describe TestSuite::Command do
   it "can be ignored" do
     command.never_fails_build!
     command.should be_ignored
+  end
+
+  it "runs an command" do
+    command.runs "echo this is a test"
+    stdout, stderr = *capture do
+      command.run!
+    end
+    stdout.should == "this is a test\r\n"
   end
 
 end

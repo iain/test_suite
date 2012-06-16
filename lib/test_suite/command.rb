@@ -1,3 +1,5 @@
+require 'pty'
+
 module TestSuite
 
   class Command
@@ -30,6 +32,14 @@ module TestSuite
 
     def never_fails_build!
       @ignored = true
+    end
+
+    def run!
+      PTY.spawn run do |read, write, pid|
+        read.each_char do |char|
+          print char
+        end
+      end
     end
 
   end
