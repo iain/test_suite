@@ -8,12 +8,12 @@ module TestSuite
       @name = name
     end
 
-    def run(command)
-      @command = command
+    def runs(run)
+      @run = run
     end
 
-    def command
-      @command || name.to_s
+    def run
+      @run || name.to_s
     end
 
     def important?

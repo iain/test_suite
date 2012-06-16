@@ -63,25 +63,25 @@ The file generated contains configuration on which commands can be ran. Here is 
 TestSuite.configure do |config|
 
   config.command :bundler do |cmd|
-    cmd.run "bundle check || bundle install" # what should be run
+    cmd.runs "bundle check || bundle install" # what should be run
     cmd.fails_build_immediately!
   end
 
   config.command :migrate do |cmd|
-    cmd.run "bundle exec rake RAILS_ENV=test db:migrate:reset > /log/migrate.log"
+    cmd.runs "bundle exec rake RAILS_ENV=test db:migrate:reset > /log/migrate.log"
     cmd.fails_build_immediately!
   end
 
   config.command :rspec do |cmd|
-    cmd.run "bundle exec rspec --format progress --format html --out rspec.html"
+    cmd.runs "bundle exec rspec --format progress --format html --out rspec.html"
   end
 
   config.command :cucumber do |cmd|
-    cmd.run "bundle exec cucumber"
+    cmd.runs "bundle exec cucumber"
   end
 
   config.command :brakeman do |cmd|
-    cmd.run "brakeman"
+    cmd.runs "brakeman"
     cmd.never_fails_build!
   end
 

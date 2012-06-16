@@ -11,12 +11,12 @@ describe TestSuite::Command do
 
   it "can receive a command" do
     cmd = "ls -alh"
-    command.run cmd
-    command.command.should be cmd
+    command.runs cmd
+    command.run.should be cmd
   end
 
   it "uses the name as a command" do
-    command.command.should eq "name"
+    command.run.should eq "name"
   end
 
   it "is not important to fail the build immediately" do
