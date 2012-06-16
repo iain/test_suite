@@ -33,11 +33,11 @@ Currently, test_suite supports the following features:
 * Define a set of commands
 * Define if and when a command should fail the build
 * Give a nice overview of all your commands
+* Provide a rake task
 
 Planned features:
 
 * Enforce cleanup commands to be run
-* Provide a rake task
 * Multiple outputs and formatters
 * Stream output to a web server, via websockets, so you can observe your test
   suite from everywhere
@@ -130,6 +130,18 @@ set -e # let this script fail directly when errors occur
 gem which bundler > /dev/null || gem install bundler --no-ri --no-rdoc
 bundle check --no-color || bundle install --no-color
 bundle exec test_suite script/test_suite.rb
+```
+
+You can also create a rake task. This might be handy for CI servers that
+already know how to run rake, like Travis. Rake is an optional dependency
+though.
+
+``` rake
+require 'test_suite/rake_task'
+TestSuite::RakeTask.new(:test, "script/test_suite.rb")
+
+# make it default
+task :default => :test
 ```
 
 Let me know if and how *you* use it!

@@ -8,8 +8,7 @@ module TestSuite
       args.each do |file|
         load File.expand_path(file)
       end
-      runner = TestSuite::Runner.call(TestSuite.configuration.commands)
-      exit runner.exit_status
+      TestSuite.run!
     end
 
   end
