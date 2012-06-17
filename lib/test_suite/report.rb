@@ -33,7 +33,7 @@ module TestSuite
     private
 
     def separator(widths, left, middle, right)
-      left + widths.map { |width| "─" * (width + 2) }.join(middle) + right
+      left + widths.map { |width| encode("─" * (width + 2)) }.join(middle) + right
     end
 
     def report_line(line, widths)
@@ -46,6 +46,14 @@ module TestSuite
 
     def report_lines
       @report_lines ||= []
+    end
+
+    def encode(string)
+      if string.respond_to?(:force_encoding)
+        string.force_encoding('utf-8')
+      else
+        string
+      end
     end
 
     class Column
