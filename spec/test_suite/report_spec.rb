@@ -1,4 +1,3 @@
-# encoding: UTF-8
 require 'test_suite/report'
 require 'support/io_helper'
 
@@ -11,14 +10,12 @@ describe TestSuite::Report do
     stdout, stderr = *capture do
       TestSuite::Report.call([ls, foobar])
     end
-    stderr.should eq <<-DOC
-┌─────────┬─────────┬─────────┐
-│ Command │ Runtime │ Status  │
-├─────────┼─────────┼─────────┤
-│ ls      │  0.400s │ success │
-│ foobar  │  1.400s │ failed  │
-└─────────┴─────────┴─────────┘
-    DOC
+    expected_report = File.open('spec/report.txt', 'r').read
+    if stderr.respond_to?(:force_encoding)
+      stderr.force_encoding('utf-8').should eq expected_report
+    else
+      stderr.should eq expected_report
+    end
   end
 
 end
