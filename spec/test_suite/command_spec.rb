@@ -2,7 +2,6 @@ require 'test_suite/command'
 require 'support/io_helper'
 
 describe TestSuite::Command do
-  include IOHelper
 
   let(:name) { :name }
   let(:command) { TestSuite::Command.new(name) }
@@ -53,6 +52,19 @@ describe TestSuite::Command do
     it "raises an exception if already important" do
       command.fails_build_immediately!
       expect { command.never_fails_build! }.to raise_error TestSuite::AmbiguousImportance
+    end
+
+  end
+
+  describe "#always_run!" do
+
+    it "is off by default" do
+      command.should_not be_always_run
+    end
+
+    it "can be turned on" do
+      command.always_run!
+      command.should be_always_run
     end
 
   end

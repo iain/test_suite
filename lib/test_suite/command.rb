@@ -1,4 +1,3 @@
-require 'pty'
 require 'test_suite/command_failed'
 require 'test_suite/executor'
 
@@ -36,6 +35,14 @@ module TestSuite
     def never_fails_build!
       raise AmbiguousImportance if important?
       @ignored = true
+    end
+
+    def always_run?
+      @always_run
+    end
+
+    def always_run!
+      @always_run = true
     end
 
     def run!(executor = Executor.new)
