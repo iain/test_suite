@@ -36,6 +36,11 @@ describe TestSuite::Command do
       expect { command.fails_build_immediately! }.to raise_error TestSuite::AmbiguousImportance
     end
 
+    it "cannot be important when it should always run" do
+      command.always_run!
+      expect { command.fails_build_immediately! }.to raise_error TestSuite::AmbiguousImportance
+    end
+
   end
 
   describe "#never_fails_build!" do
@@ -65,6 +70,11 @@ describe TestSuite::Command do
     it "can be turned on" do
       command.always_run!
       command.should be_always_run
+    end
+
+    it "cannot be always_run when already important" do
+      command.fails_build_immediately!
+      expect { command.always_run! }.to raise_error TestSuite::AmbiguousImportance
     end
 
   end

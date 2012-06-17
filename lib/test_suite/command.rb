@@ -25,6 +25,7 @@ module TestSuite
 
     def fails_build_immediately!
       raise AmbiguousImportance if ignored?
+      raise AmbiguousImportance if always_run?
       @important = true
     end
 
@@ -42,6 +43,7 @@ module TestSuite
     end
 
     def always_run!
+      raise AmbiguousImportance if important?
       @always_run = true
     end
 
