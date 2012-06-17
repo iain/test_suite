@@ -14,7 +14,7 @@ describe TestSuite::Runner do
 
   it "may be halted immediately, due to a failed command" do
     failing_command = stub :failing_command
-    next_command = stub :next_command
+    next_command = stub :next_command, :always_run? => false
     failing_command.stub(:run!) { raise TestSuite::CommandFailed, "some reason" }
     next_command.should_not_receive(:run!)
     TestSuite::Runner.call([failing_command, next_command])
@@ -47,5 +47,12 @@ describe TestSuite::Runner do
     TestSuite::Runner.call([command])
   end
 
+  it "forces running of always_run commands" do
+    failing_command = stub :failing_command
+    always_command = stub :always_command, :always_run? => true
+    failing_command.stub(:run!) { raise TestSuite::CommandFailed, "some reason" }
+    always_command.should_receive(:run!)
+    TestSuite::Runner.call([failing_command, always_command])
+  end
 
 end

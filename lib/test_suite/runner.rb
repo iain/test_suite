@@ -17,8 +17,13 @@ module TestSuite
     end
 
     def call
-      commands.each(&:run!)
+      last_run = 0
+      commands.each_with_index do |command, index|
+        last_run = index + 1
+        command.run!
+      end
     rescue CommandFailed => error
+      commands[last_run..-1].select(&:always_run?).each(&:run!)
     ensure
       Report.call(commands)
     end
