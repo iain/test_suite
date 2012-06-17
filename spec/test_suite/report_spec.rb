@@ -11,11 +11,7 @@ describe TestSuite::Report do
       TestSuite::Report.call([ls, foobar])
     end
     expected_report = File.open('spec/report.txt', 'r:utf-8').read
-    if stderr.respond_to?(:force_encoding)
-      stderr.force_encoding('utf-8').should eq expected_report
-    else
-      stderr.should eq expected_report
-    end
+    stderr.force_encoding('utf-8').should eq expected_report
   end
 
 end
