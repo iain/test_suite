@@ -36,10 +36,10 @@ Currently, test_suite supports the following features:
 * Define if and when a command should fail the build
 * Give a nice overview of all your commands
 * Provide a rake task
+* Enforce cleanup commands to be run
 
 Planned features:
 
-* Enforce cleanup commands to be run
 * Multiple outputs and formatters
 * Stream output to a web server, via websockets, so you can observe your test
   suite from everywhere
@@ -96,7 +96,12 @@ running the test suites. You can mark these commands with
 `cmd.fails_build_immediately!`.
 
 If some process isn't important enough to break the build, you can mark them
-with `cmd.never_fails_build!`.
+with `cmd.never_fails_build!`. You can use this for collecting metrics, for
+example.
+
+If you always want to run a command, even if another process broke the build
+early, you can use the `cmd.always_run!` option. You can use this for cleanup
+tasks.
 
 You can run the test suite, by passing the filename to the test_run command.
 
